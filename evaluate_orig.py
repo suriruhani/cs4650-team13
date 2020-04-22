@@ -1,4 +1,4 @@
-""" Customized version of the official evaluation script for v1.1 of the SQuAD dataset. """
+""" Official evaluation script for v1.1 of the SQuAD dataset. """
 from __future__ import print_function
 from collections import Counter
 import string
@@ -10,7 +10,6 @@ import sys
 
 def normalize_answer(s):
     """Lower text and remove punctuation, articles and extra whitespace."""
-
     def remove_articles(text):
         return re.sub(r'\b(a|an|the)\b', ' ', text)
 
@@ -76,24 +75,6 @@ def evaluate(dataset, predictions):
     return {'exact_match': exact_match, 'f1': f1}
 
 
-def main(args):
-    with open(args.dataset_file) as dataset_file:
-        dataset_json = json.load(dataset_file)
-        """
-        if (dataset_json['version'] != expected_version):
-            print('Evaluation expects v-' + expected_version +
-                  ', but got dataset with v-' + dataset_json['version'],
-                  file=sys.stderr)
-        """
-        dataset = dataset_json['data']
-    with open(args.prediction_file) as prediction_file:
-        predictions = json.load(prediction_file)
-
-    results = evaluate(dataset, predictions)
-    #print(json.dumps(results))
-    return results
-
-
 if __name__ == '__main__':
     expected_version = '1.1'
     parser = argparse.ArgumentParser(
@@ -101,4 +82,13 @@ if __name__ == '__main__':
     parser.add_argument('dataset_file', help='Dataset file')
     parser.add_argument('prediction_file', help='Prediction File')
     args = parser.parse_args()
-    main(args)
+    with open(args.dataset_file) as dataset_file:
+        dataset_json = json.load(dataset_file)
+        if (dataset_json['version'] != expected_version):
+            print('Evaluation expects v-' + expected_version +
+                  ', but got dataset with v-' + dataset_json['version'],
+                  file=sys.stderr)
+        dataset = dataset_json['data']
+    with open(args.prediction_file) as prediction_file:
+        predictions = json.load(prediction_file)
+    print(json.dumps(evaluate(dataset, predictions)))
