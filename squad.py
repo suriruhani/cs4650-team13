@@ -7,6 +7,7 @@ from torchtext import data
 from torchtext import datasets
 from torchtext.vocab import GloVe
 
+nltk.download('punkt')
 
 def word_tokenize(tokens):
     return [token.replace("''", '"').replace("``", '"') for token in nltk.word_tokenize(tokens)]
