@@ -21,7 +21,7 @@ def train(args, data):
         if param.requires_grad:
             ema.register(name, param.data)
     parameters = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = optim.SGD(parameters, lr=args.learning_rate)
+    optimizer = optim.Adadelta(parameters, lr=args.learning_rate)
     criterion = nn.CrossEntropyLoss()
 
     # writer = SummaryWriter(log_dir='runs/' + args.model_time)
