@@ -21,7 +21,7 @@ def train(args, data):
         if param.requires_grad:
             ema.register(name, param.data)
     parameters = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = optim.Adadelta(parameters, lr=args.learning_rate)
+    optimizer = optim.SGD(parameters, lr=args.learning_rate)
     criterion = nn.CrossEntropyLoss()
 
     writer = SummaryWriter(log_dir='runs/' + args.model_time)
@@ -145,7 +145,7 @@ def main():
     data = SQuAD(args)
     setattr(args, 'char_vocab_size', len(data.CHAR.vocab))
     setattr(args, 'word_vocab_size', len(data.WORD.vocab))
-    setattr(args, 'dataset_file', f'.data/squad/{args.dev_file}')
+    setattr(args, 'dataset_file', f'data/{args.dev_file}')
     setattr(args, 'prediction_file', f'prediction{args.gpu}.out')
     setattr(args, 'model_time', strftime('%H:%M:%S', gmtime()))
     print('data loading complete!')
