@@ -6,7 +6,7 @@ from torch import nn, optim
 from tensorboardX import SummaryWriter
 from time import gmtime, strftime
 
-from model import BiDAF
+from bidaf import BiDAF
 from squad import SQuAD
 from memory import EMA
 import evaluate
