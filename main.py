@@ -3,7 +3,6 @@ import copy, json, os
 
 import torch
 from torch import nn, optim
-from tensorboardX import SummaryWriter
 from time import gmtime, strftime
 
 from bidaf import BiDAF
@@ -23,8 +22,6 @@ def train(args, data):
     parameters = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = optim.Adadelta(parameters, lr=args.learning_rate)
     criterion = nn.CrossEntropyLoss()
-
-    # writer = SummaryWriter(log_dir='runs/' + args.model_time)
 
     model.train()
     loss, last_epoch = 0, -1
@@ -55,10 +52,6 @@ def train(args, data):
             dev_loss, dev_exact, dev_f1 = test(model, ema, args, data)
             c = (i + 1) // args.print_freq
 
-            # writer.add_scalar('loss/train', loss, c)
-            # writer.add_scalar('loss/dev', dev_loss, c)
-            # writer.add_scalar('exact_match/dev', dev_exact, c)
-            # writer.add_scalar('f1/dev', dev_f1, c)
             print(f'train loss: {loss:.3f} / dev loss: {dev_loss:.3f}'
                   f' / dev EM: {dev_exact:.3f} / dev F1: {dev_f1:.3f}')
 
@@ -70,7 +63,6 @@ def train(args, data):
             loss = 0
             model.train()
 
-    # writer.close()
     print(f'max dev EM: {max_dev_exact:.3f} / max dev F1: {max_dev_f1:.3f}')
 
     return best_model
@@ -95,7 +87,6 @@ def test(model, ema, args, data):
             batch_loss = criterion(p1, batch.s_idx) + criterion(p2, batch.e_idx)
             loss += batch_loss.item()
 
-            # (batch, c_len, c_len)
             batch_size, c_len = p1.size()
             ls = nn.LogSoftmax(dim=1)
             mask = (torch.ones(c_len, c_len) * float('-inf')).to(device).tril(-1).unsqueeze(0).expand(batch_size, -1, -1)
