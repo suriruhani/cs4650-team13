@@ -40,13 +40,29 @@ class SQuAD():
                        'context': [('c_word', self.WORD), ('c_char', self.CHAR)],
                        'question': [('q_word', self.WORD), ('q_char', self.CHAR)]}
 
-        print("building splits...")
-        self.train, self.dev = data.TabularDataset.splits(
-            path=path,
-            train='{}l'.format(args.train_file),
-            validation='{}l'.format(args.dev_file),
-            format='json',
-            fields=dict_fields)
+        list_fields = [('id', self.RAW), ('s_idx', self.LABEL), ('e_idx', self.LABEL),
+                       ('c_word', self.WORD), ('c_char', self.CHAR),
+                       ('q_word', self.WORD), ('q_char', self.CHAR)]
+
+        if os.path.exists(dataset_path):
+            print("loading splits...")
+            train_examples = torch.load(train_examples_path)
+            dev_examples = torch.load(dev_examples_path)
+
+            self.train = data.Dataset(examples=train_examples, fields=list_fields)
+            self.dev = data.Dataset(examples=dev_examples, fields=list_fields)
+        else:
+            print("building splits...")
+            self.train, self.dev = data.TabularDataset.splits(
+                path=path,
+                train='{}l'.format(args.train_file),
+                validation='{}l'.format(args.dev_file),
+                format='json',
+                fields=dict_fields)
+
+            os.makedirs(dataset_path)
+            torch.save(self.train.examples, train_examples_path)
+            torch.save(self.dev.examples, dev_examples_path)
 
         #cut too long context in the training set for efficiency.
         if args.context_threshold > 0:
@@ -74,6 +90,12 @@ class SQuAD():
             repeat=False,
             sort_key=lambda x: len(x.c_word)
         )
+
+        # self.train_iter, self.dev_iter = \
+        #    data.BucketIterator.splits((self.train, self.dev),
+        #                               batch_sizes=[args.train_batch_size, args.dev_batch_size],
+        #                               device=device,
+        #                               sort_key=lambda x: len(x.c_word))
 
     def preprocess_file(self, path):
         dump = []
