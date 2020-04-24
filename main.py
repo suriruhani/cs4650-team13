@@ -141,14 +141,14 @@ def main():
     parser.add_argument('--word-dim', default=100, type=int)
     args = parser.parse_args()
 
-    print('loading SQuAD data...')
+    print('loading SQuAD dataset ...')
     data = SQuAD(args)
     setattr(args, 'char_vocab_size', len(data.CHAR.vocab))
     setattr(args, 'word_vocab_size', len(data.WORD.vocab))
     setattr(args, 'dataset_file', f'data/{args.dev_file}')
     setattr(args, 'prediction_file', f'prediction{args.gpu}.out')
     setattr(args, 'model_time', strftime('%H:%M:%S', gmtime()))
-    print('data loading complete!')
+    print('data loading completed')
 
     print('training start!')
     best_model = train(args, data)
